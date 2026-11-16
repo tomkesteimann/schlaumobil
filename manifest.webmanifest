@@ -1,0 +1,17 @@
+{
+  "name": "Schlaumobil",
+  "short_name": "Schlaumobil",
+  "description": "Allgemeinwissen-Quiz per Sprache fürs Auto",
+  "lang": "de",
+  "start_url": "./",
+  "scope": "./",
+  "display": "browser",
+  "orientation": "portrait",
+  "background_color": "#120f24",
+  "theme_color": "#120f24",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-180.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

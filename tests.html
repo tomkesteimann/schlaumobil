@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tests – Schlaumobil</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; padding: 16px; background: #120f24; color: #fff; font: 600 15px/1.4 ui-rounded, -apple-system, system-ui, sans-serif; }
+    h1 { font-size: 26px; margin: 0 0 4px; }
+    h2 { font-size: 19px; margin: 22px 0 8px; }
+    .gesamt { font-size: 20px; padding: 12px 14px; border-radius: 14px; margin: 12px 0; }
+    .gut { background: rgba(52, 211, 153, 0.18); border: 1px solid #34d399; }
+    .schlecht { background: rgba(251, 113, 133, 0.18); border: 1px solid #fb7185; }
+    ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+    li { padding: 6px 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.06); word-break: break-word; }
+    li.f { background: rgba(251, 113, 133, 0.2); }
+    li.w { background: rgba(252, 211, 77, 0.14); }
+    a { color: #c4b5fd; }
+  </style>
+</head>
+<body>
+  <h1>Schlaumobil – Tests</h1>
+  <p><a href="./">← zur App</a> · <a href="./?debug=1">Debug-Modus</a></p>
+  <div id="gesamt" class="gesamt"></div>
+  <h2>Antwortprüfung</h2>
+  <ul id="tests"></ul>
+  <h2>Fragen-Datenbank</h2>
+  <ul id="db"></ul>
+
+  <script src="pruefung.js"></script>
+  <script src="fragen.js"></script>
+  <script src="tests/faelle.js"></script>
+  <script src="tests/lauf.js"></script>
+  <script src="tools/datenbank.js"></script>
+  <script>
+    (function () {
+      var t = SchlaumobilTests.laufeTests(Pruefung, FRAGEN, TESTFAELLE);
+      var db = SchlaumobilDatenbank.pruefeDatenbank(FRAGEN, Pruefung);
+      function li(text, klasse) { var el = document.createElement("li"); el.textContent = text; if (klasse) el.className = klasse; return el; }
+      var ul = document.getElementById("tests");
+      t.details.slice().sort(function (a, b) { return a.ok - b.ok; }).forEach(function (d) { ul.appendChild(li((d.ok ? "✓ " : "✗ ") + d.text, d.ok ? "" : "f")); });
+      var dbl = document.getElementById("db");
+      var s = db.statistik;
+      dbl.appendChild(li("Fragen gesamt: " + s.gesamt));
+      Object.keys(s.proKategorie).forEach(function (k) {
+        var d = s.proSchwierigkeit[k];
+        dbl.appendChild(li(k + ": " + s.proKategorie[k] + " (leicht " + d[1] + ", mittel " + d[2] + ", schwer " + d[3] + ")"));
+      });
+      db.fehler.forEach(function (f) { dbl.appendChild(li("✗ " + f, "f")); });
+      db.warnungen.forEach(function (w) { dbl.appendChild(li("! " + w, "w")); });
+      var fehler = t.fehler + db.fehler.length;
+      var g = document.getElementById("gesamt");
+      g.className = "gesamt " + (fehler ? "schlecht" : "gut");
+      g.textContent = fehler ? "✗ " + fehler + " Fehler" : "✓ Alle " + (t.ok) + " Tests bestanden, Datenbank in Ordnung";
+      document.title = (fehler ? "✗ " : "✓ ") + document.title;
+      window.TESTERGEBNIS = { ok: t.ok, fehler: fehler };
+    })();
+  </script>
+</body>
+</html>

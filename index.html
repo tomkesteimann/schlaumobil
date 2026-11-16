@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#120f24">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Allgemeinwissen-Quiz per Sprache fürs Auto">
+  <meta name="apple-mobile-web-app-title" content="Schlaumobil">
+  <meta name="format-detection" content="telephone=no">
+  <title>Schlaumobil</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="app">
+
+    <!-- ═════════ Startseite ═════════ -->
+    <section id="screen-start" class="screen" aria-labelledby="start-titel">
+      <header class="kopf">
+        <h1 id="start-titel" class="app-name" data-app-name>Schlaumobil</h1>
+        <p id="fortschritt-zeile" class="fortschritt"></p>
+      </header>
+      <div id="hinweis-start" class="hinweis" hidden></div>
+      <div id="karten" class="karten"></div>
+      <nav class="unten">
+        <button id="btn-technik" class="knopf-klein" type="button">🔧 Technik-Check</button>
+        <button id="btn-einstellungen" class="knopf-klein" type="button">⚙️ Einstellungen</button>
+      </nav>
+    </section>
+
+    <!-- ═════════ Erster Start ═════════ -->
+    <section id="screen-intro" class="screen screen-text" hidden aria-labelledby="intro-titel">
+      <div class="intro-emoji" aria-hidden="true">🚗💡</div>
+      <h1 id="intro-titel">Willkommen bei <span data-app-name>Schlaumobil</span>!</h1>
+      <p class="intro-text">Ich lese dir Fragen vor, du antwortest laut. Ganz ohne Hände.</p>
+      <ol class="tipps">
+        <li><span>📱</span> Handy fest in die Halterung.</li>
+        <li><span>🅿️</span> Vor der Fahrt starten – mit einem Tipp auf eine Karte.</li>
+        <li><span>🙌</span> Während der Fahrt nichts antippen. Sag „Stopp“, um aufzuhören.</li>
+        <li><span>🔧</span> Mach einmal den Technik-Check, bevor du losfährst.</li>
+      </ol>
+      <button id="btn-intro-technik" class="knopf-gross" type="button">Technik-Check starten</button>
+      <button id="btn-intro-ok" class="knopf-text" type="button">Später – zur Startseite</button>
+    </section>
+
+    <!-- ═════════ Fahrt ═════════ -->
+    <section id="screen-fahrt" class="screen fahrt" hidden aria-live="polite">
+      <div class="fahrt-kopf">
+        <span id="fahrt-kat" class="fahrt-kat"></span>
+        <span id="fahrt-zaehler" class="fahrt-zaehler"></span>
+      </div>
+      <div class="fahrt-mitte">
+        <p id="fahrt-frage" class="frage"></p>
+        <div id="fahrt-status" class="status" data-zustand="frage">
+          <span class="status-symbol" aria-hidden="true"><span class="mikro">🎙️</span></span>
+          <span id="fahrt-status-text" class="status-text"></span>
+        </div>
+        <p id="fahrt-zwischen" class="zwischen"></p>
+        <div id="fahrt-loesung" class="loesung" hidden>
+          <p id="fahrt-loesung-antwort" class="loesung-antwort"></p>
+          <p id="fahrt-loesung-fact" class="loesung-fact"></p>
+        </div>
+        <p id="fahrt-hinweis" class="fahrt-hinweis" hidden></p>
+      </div>
+      <div class="fahrt-unten">
+        <button id="btn-pause-weiter" class="knopf-gross knopf-weiter" type="button" hidden>Weiter ▶︎</button>
+        <button id="btn-stopp" class="knopf-stopp" type="button">Stopp</button>
+        <button id="btn-skip" class="knopf-text" type="button">Überspringen</button>
+      </div>
+      <form id="debug-panel" class="debug-panel" hidden>
+        <strong>Debug</strong>
+        <input id="debug-eingabe" type="text" placeholder="Antwort tippen …" autocomplete="off" autocapitalize="off">
+        <button type="submit">Sagen</button>
+        <button id="debug-stille" type="button">Stille</button>
+        <button id="debug-netz" type="button">Netzfehler</button>
+        <button id="debug-verboten" type="button">Kein Mikro</button>
+      </form>
+    </section>
+
+    <!-- ═════════ Ergebnis ═════════ -->
+    <section id="screen-ergebnis" class="screen screen-text" hidden aria-labelledby="ergebnis-titel">
+      <div id="ergebnis-emoji" class="ergebnis-emoji" aria-hidden="true">🏁</div>
+      <h1 id="ergebnis-titel">Fahrt beendet</h1>
+      <p id="ergebnis-zahl" class="ergebnis-zahl"></p>
+      <p id="ergebnis-unter" class="ergebnis-unter"></p>
+      <h2 id="ergebnis-liste-titel" class="liste-titel" hidden>Das war noch nicht richtig</h2>
+      <p id="ergebnis-liste-info" class="klein" hidden>Falsch verstanden? Tippe im Stand auf „War doch richtig“.</p>
+      <ul id="ergebnis-liste" class="falsch-liste"></ul>
+      <div class="knopf-reihe">
+        <button id="btn-ergebnis-nochmal" class="knopf-gross" type="button">Nochmal fahren</button>
+        <button id="btn-ergebnis-start" class="knopf-text" type="button">Zur Startseite</button>
+      </div>
+    </section>
+
+    <!-- ═════════ Einstellungen ═════════ -->
+    <section id="screen-einstellungen" class="screen screen-text" hidden aria-labelledby="einst-titel">
+      <div class="leiste"><button class="zurueck" type="button" data-zurueck>‹ Zurück</button></div>
+      <h1 id="einst-titel">Einstellungen</h1>
+
+      <div class="gruppe">
+        <label class="feld" for="einst-stimme">Stimme</label>
+        <div class="zeile">
+          <select id="einst-stimme"></select>
+          <button id="btn-stimme-test" class="knopf-klein" type="button">▶︎ Test</button>
+        </div>
+        <p id="einst-stimme-info" class="klein"></p>
+      </div>
+
+      <div class="gruppe">
+        <label class="feld" for="einst-tempo">Sprechtempo <output id="einst-tempo-wert"></output></label>
+        <input id="einst-tempo" type="range" min="0.8" max="1.2" step="0.05">
+      </div>
+
+      <div class="gruppe">
+        <label class="feld" for="einst-antwortzeit">Antwortzeit <output id="einst-antwortzeit-wert"></output></label>
+        <input id="einst-antwortzeit" type="range" min="5" max="15" step="1">
+      </div>
+
+      <div class="gruppe">
+        <label class="schalter"><input id="einst-funfact" type="checkbox"><span>Fun Fact auch bei richtiger Antwort</span></label>
+        <label class="schalter"><input id="einst-sounds" type="checkbox"><span>Soundeffekte</span></label>
+        <label class="schalter"><input id="einst-hoermodus" type="checkbox"><span>Hörmodus ohne Mikro</span></label>
+        <p class="klein">Im Hörmodus liest die App Frage und Lösung vor – ohne Mikrofon und ohne Wertung.</p>
+        <label class="feld" for="einst-denkpause">Denkpause im Hörmodus <output id="einst-denkpause-wert"></output></label>
+        <input id="einst-denkpause" type="range" min="3" max="15" step="1">
+      </div>
+
+      <div class="gruppe">
+        <h2>Protokoll</h2>
+        <p class="klein">Die letzten 50 Erkennungen. Kopieren und an Claude schicken, wenn etwas nicht klappt.</p>
+        <div class="zeile">
+          <button id="btn-protokoll-kopieren" class="knopf-klein" type="button">📋 Protokoll kopieren</button>
+          <button id="btn-protokoll-leeren" class="knopf-klein" type="button">Leeren</button>
+        </div>
+        <ol id="protokoll-liste" class="protokoll"></ol>
+      </div>
+
+      <div class="gruppe">
+        <h2>Fortschritt</h2>
+        <button id="btn-reset" class="knopf-gefahr" type="button">Fortschritt zurücksetzen</button>
+      </div>
+      <p id="version-info" class="klein mitte"></p>
+    </section>
+
+    <!-- ═════════ Technik-Check ═════════ -->
+    <section id="screen-technik" class="screen screen-text" hidden aria-labelledby="technik-titel">
+      <div class="leiste"><button class="zurueck" type="button" data-zurueck>‹ Zurück</button></div>
+      <h1 id="technik-titel">Technik-Check</h1>
+      <p class="klein">Einmal im Stand durchgehen. Am besten im Auto, mit Bluetooth verbunden.</p>
+
+      <article class="check" id="check-ton">
+        <div class="check-kopf"><span class="check-nr">1</span><h2>Ton</h2><span class="check-icon" data-status="offen">○</span></div>
+        <p class="check-text">Ich spreche einen Testsatz.</p>
+        <div class="zeile">
+          <button class="knopf-klein knopf-aktiv" type="button" data-aktion="ton">▶︎ Testsatz</button>
+          <button class="knopf-klein" type="button" data-aktion="ton-ja" hidden>✓ Gehört</button>
+          <button class="knopf-klein" type="button" data-aktion="ton-nein" hidden>✗ Nichts gehört</button>
+        </div>
+        <div class="check-loesung" hidden></div>
+      </article>
+
+      <article class="check" id="check-mikro">
+        <div class="check-kopf"><span class="check-nr">2</span><h2>Mikro &amp; Spracherkennung</h2><span class="check-icon" data-status="offen">○</span></div>
+        <p class="check-text">Tippe auf Start und sag nach dem Piepton: „Ich bin bereit“.</p>
+        <div class="zeile"><button class="knopf-klein knopf-aktiv" type="button" data-aktion="mikro">🎙️ Start</button></div>
+        <p class="check-erkannt" hidden></p>
+        <div class="check-loesung" hidden></div>
+      </article>
+
+      <article class="check" id="check-wach">
+        <div class="check-kopf"><span class="check-nr">3</span><h2>Bildschirm bleibt an</h2><span class="check-icon" data-status="offen">○</span></div>
+        <p class="check-text">Prüft, ob die App den Bildschirm wach halten kann.</p>
+        <div class="zeile"><button class="knopf-klein knopf-aktiv" type="button" data-aktion="wach">Prüfen</button></div>
+        <div class="check-loesung" hidden></div>
+      </article>
+
+      <article class="check" id="check-umgebung">
+        <div class="check-kopf"><span class="check-nr">4</span><h2>Umgebung</h2><span class="check-icon" data-status="offen">○</span></div>
+        <ul class="umgebung-liste"></ul>
+        <div class="check-loesung" hidden></div>
+      </article>
+    </section>
+  </main>
+
+  <!-- Weiter nach Unterbrechung (Anruf, andere App) -->
+  <div id="overlay-weiter" class="overlay" hidden>
+    <div class="overlay-box">
+      <div class="overlay-emoji" aria-hidden="true">⏸️</div>
+      <h2>Fahrt pausiert</h2>
+      <p>Die App war im Hintergrund. Weiter geht's mit einem Tipp.</p>
+      <button id="btn-overlay-weiter" class="knopf-gross knopf-weiter" type="button">Weiter ▶︎</button>
+      <button id="btn-overlay-ende" class="knopf-text" type="button">Fahrt beenden</button>
+    </div>
+  </div>
+
+  <!-- Eigener Bestätigungsdialog (statt confirm) -->
+  <div id="dialog" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="dialog-titel">
+    <div class="overlay-box">
+      <h2 id="dialog-titel"></h2>
+      <p id="dialog-text"></p>
+      <div class="knopf-reihe">
+        <button id="dialog-ja" class="knopf-gefahr" type="button"></button>
+        <button id="dialog-nein" class="knopf-text" type="button"></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script src="config.js"></script>
+  <script src="pruefung.js"></script>
+  <script src="fragen.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
